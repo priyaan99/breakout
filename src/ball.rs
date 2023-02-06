@@ -4,6 +4,7 @@ use crate::consts::*;
 use macroquad::prelude::*;
 
 pub struct Ball {
+    active: bool,
     circle: Circle,
     direction: Vec2,
 }
@@ -11,14 +12,19 @@ pub struct Ball {
 impl Ball {
     pub fn new(position: Vec2, direction: Vec2, radius: f32) -> Self {
         Self {
+            active: false,
             circle: Circle::new(position.x, position.y, radius),
             direction,
         }
     }
 
+    pub fn getpos(paddle: Rect) -> Vec2 {
+        vec2(paddle.x + paddle.w / 2., paddle.y - BALL_RADIUS - OFFSET)
+    }
+
     pub fn init(paddle: Rect) -> Ball {
         Ball::new(
-            vec2(paddle.x + paddle.w / 2., paddle.y - BALL_RADIUS - OFFSET),
+            Self::getpos(paddle),
             Vec2::from_angle(PI / 2.), // 90 degree
             BALL_RADIUS,
         )
@@ -50,9 +56,17 @@ impl Ball {
         self.direction.x *= -1.;
     }
 
-    pub fn update(&mut self) {
-        self.circle
-            .move_to(self.circle.point() + self.direction * BALL_SPEED * get_frame_time());
+    pub fn update(&mut self, paddle: Rect) {
+        if self.active {
+            self.circle
+                .move_to(self.circle.point() + self.direction * BALL_SPEED * get_frame_time());
+        } else {
+            if is_key_pressed(KeyCode::Space) {
+                self.active = true;
+            } else {
+                self.circle.move_to(Self::getpos(paddle));
+            }
+        }
     }
 
     pub fn draw(&self) {

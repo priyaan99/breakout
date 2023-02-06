@@ -17,6 +17,7 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    println!("width {} \nheight {}", WIDTH, HEIGHT);
     let mut out = true;
     let sounds = Sounds::new().await;
     let mut play = Play::init(sounds);

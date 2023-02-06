@@ -53,6 +53,7 @@ impl Play {
 
     pub fn update(&mut self) {
         self.paddle_movement();
+
         // collisions
         self.ball_vs_bricks();
         self.ball_vs_paddle();
@@ -73,7 +74,7 @@ impl Play {
         }
 
         self.paddle.update();
-        self.ball.update();
+        self.ball.update(self.paddle.rect());
     }
 
     fn paddle_movement(&mut self) {
@@ -149,6 +150,17 @@ impl Play {
             if b.active() {
                 b.draw();
             }
+        }
+
+        // draw remaining balls
+        for i in 1..=self.life {
+            draw_rectangle(
+                (OFFSET + BALL_RADIUS) * i as f32,
+                HEIGHT * 6. / 7.,
+                BALL_RADIUS,
+                BALL_RADIUS,
+                Color { a: 0.8, ..SKYBLUE },
+            )
         }
     }
 
