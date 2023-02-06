@@ -1,3 +1,5 @@
+use breakout::sound::Sounds;
+use macroquad::audio::play_sound_once;
 use macroquad::prelude::*;
 
 use breakout::consts::*;
@@ -16,7 +18,8 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut out = true;
-    let mut play = Play::init();
+    let sounds = Sounds::new().await;
+    let mut play = Play::init(sounds);
     let mut result: Option<Outcome> = None;
 
     loop {
@@ -27,7 +30,8 @@ async fn main() {
         if out {
             if is_key_pressed(KeyCode::Enter) {
                 out = false;
-                play = Play::init();
+                play = Play::init(sounds);
+                play_sound_once(sounds.click);
             }
         } else {
             play.update();

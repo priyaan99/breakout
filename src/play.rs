@@ -1,5 +1,5 @@
-use crate::{ball::*, brick::Brick, consts::*, paddle::*};
-use macroquad::prelude::*;
+use crate::{ball::*, brick::Brick, consts::*, paddle::*, sound::Sounds};
+use macroquad::{audio::play_sound_once, prelude::*};
 
 #[derive(Clone, Copy)]
 pub enum Outcome {
@@ -14,10 +14,11 @@ pub struct Play {
     paddle: Paddle,
     ball: Ball,
     briks: Vec<Brick>,
+    sounds: Sounds,
 }
 
 impl Play {
-    pub fn init() -> Self {
+    pub fn init(sounds: Sounds) -> Self {
         let paddle = Paddle::new();
         let ball = Ball::init(paddle.rect);
 
@@ -40,6 +41,7 @@ impl Play {
         }
 
         Self {
+            sounds,
             result: None,
             life: 3,
             score: 0,
@@ -86,11 +88,13 @@ impl Play {
         if self.ball.left() < 0. || self.ball.right() > WIDTH {
             self.ball.reverse_x();
             self.ball.clamp_x(0., WIDTH);
+            play_sound_once(self.sounds.ball_vs_paddle);
         }
 
         if self.ball.top() < 0. {
             self.ball.reverse_y();
             self.ball.clamp_y(0., HEIGHT + 100.);
+            play_sound_once(self.sounds.ball_vs_paddle);
         }
     }
 
@@ -107,6 +111,7 @@ impl Play {
                 .to_radians();
 
             self.ball.set_up_angle(angle);
+            play_sound_once(self.sounds.ball_vs_paddle);
         }
     }
 
@@ -130,6 +135,8 @@ impl Play {
                 }
 
                 self.score += 1;
+
+                play_sound_once(self.sounds.ball_vs_briks);
             }
         }
     }

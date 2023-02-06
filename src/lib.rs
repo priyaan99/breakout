@@ -2,6 +2,7 @@ pub mod ball;
 pub mod brick;
 pub mod paddle;
 pub mod play;
+pub mod sound;
 
 pub mod consts {
     use macroquad::color::*;
