@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 use breakout::consts::*;
-use breakout::{ball::*, brick::Brick, paddle::*};
+use breakout::play::{Outcome, Play};
 
 fn window_conf() -> Conf {
     Conf {
@@ -15,54 +15,70 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut paddle = Paddle::new();
-    let mut ball = Ball::new(
-        vec2(
-            paddle.rect().x + paddle.rect().w / 2.,
-            paddle.rect().y - BALL_RADIUS,
-        ),
-        Vec2::NEG_Y,
-        BALL_RADIUS,
-    );
-
-    let mut briks = vec![];
-    for row in 0..ROWS as usize {
-        for col in 0..COLS as usize {
-            let brick_rect = Rect::new(
-                col as f32 * BLOCK_SIZE,
-                row as f32 * BLOCK_SIZE,
-                BLOCK_SIZE,
-                BLOCK_SIZE,
-            );
-            let brick_color = if (row + col) % 2 == 0 {
-                GRAY
-            } else {
-                LIGHTGRAY
-            };
-            briks.push(Brick::new(brick_rect, brick_color));
-        }
-    }
+    let mut out = true;
+    let mut play = Play::init();
+    let mut result: Option<Outcome> = None;
 
     loop {
         if is_key_pressed(KeyCode::Escape) {
             break;
         }
 
-        if is_key_down(KeyCode::Left) {
-            paddle.move_left();
-        } else if is_key_down(KeyCode::Right) {
-            paddle.move_right();
+        if out {
+            if is_key_pressed(KeyCode::Enter) {
+                out = false;
+                play = Play::init();
+            }
+        } else {
+            play.update();
+
+            result = play.finish();
+
+            if let Some(_) = result {
+                out = true;
+            }
         }
 
-        paddle.update();
-        ball.update();
-
         clear_background(WHITE);
-        paddle.draw();
-        ball.draw();
+        if out {
+            let press_enter_str = "Press Enter to Play.";
+            const FONT_SIZE: u16 = 20;
+            let press_enter_measure = measure_text(press_enter_str, None, FONT_SIZE, 1.);
 
-        for b in briks.iter() {
-            b.draw();
+            if let Some(r) = result {
+                match r {
+                    Outcome::Win => {
+                        draw_text("You Win.", WIDTH / 2. - 50., HEIGHT / 1. / 3., 30., RED);
+                        draw_text(
+                            press_enter_str,
+                            WIDTH / 2. - press_enter_measure.width / 2.,
+                            HEIGHT / 2.,
+                            FONT_SIZE as f32,
+                            RED,
+                        )
+                    }
+                    Outcome::Loose => {
+                        draw_text("You Loose.", WIDTH / 2. - 50., HEIGHT / 1. / 3., 30., RED);
+                        draw_text(
+                            press_enter_str,
+                            WIDTH / 2. - press_enter_measure.width / 2.,
+                            HEIGHT / 2.,
+                            FONT_SIZE as f32,
+                            RED,
+                        )
+                    }
+                }
+            } else {
+                draw_text(
+                    press_enter_str,
+                    WIDTH / 2. - press_enter_measure.width / 2.,
+                    HEIGHT / 2.,
+                    FONT_SIZE as f32,
+                    RED,
+                )
+            }
+        } else {
+            play.draw();
         }
 
         next_frame().await

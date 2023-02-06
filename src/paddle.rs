@@ -7,19 +7,31 @@ pub struct Paddle {
 
 impl Paddle {
     pub fn new() -> Self {
-        let size = vec2(50., 10.);
         let pos = vec2(
-            screen_width() / 2. - size.x / 2.,
-            screen_height() - size.y - OFFSET,
+            screen_width() / 2. - PADDLE_SIZE.x / 2.,
+            screen_height() - PADDLE_SIZE.y - OFFSET,
         );
         Self {
             rect: Rect {
                 x: pos.x,
                 y: pos.y,
-                w: size.x,
-                h: size.y,
+                w: PADDLE_SIZE.x,
+                h: PADDLE_SIZE.y,
             },
         }
+    }
+    pub fn x(&self) -> f32 {
+        self.rect.x
+    }
+    pub fn y(&self) -> f32 {
+        self.rect.y
+    }
+
+    pub fn w(&self) -> f32 {
+        self.rect.w
+    }
+    pub fn h(&self) -> f32 {
+        self.rect.h
     }
 
     pub fn rect(&self) -> Rect {
